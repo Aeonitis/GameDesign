@@ -7,6 +7,7 @@ using Unity.Collections;
 
 public class BlockControllerSystem : JobComponentSystem {
 
+	[BurstCompile]
 	private struct BlockControlJob : IJobProcessComponentData<Position, Rotation, BlockControllerData> {
 
 		public float upperBounds;
