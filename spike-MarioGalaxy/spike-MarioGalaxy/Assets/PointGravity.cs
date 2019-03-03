@@ -10,7 +10,10 @@ public class PointGravity : MonoBehaviour {
 		// Grab everything within radius, get colliders from them and apply our force to them
 		foreach (Collider collider in Physics.OverlapSphere(transform.position, radius))
 		{
-			GetComponent<Collider>().GetComponent<Rigidbody>().AddExplosionForce(-force, transform.position, radius);
+			Rigidbody rigidBodyOfColliderAround = GetComponent<Collider>().GetComponent<Rigidbody>();
+			if(rigidBodyOfColliderAround) {
+				rigidBodyOfColliderAround.AddExplosionForce(-force, transform.position, radius);
+			}
 		}
 		
 	}
