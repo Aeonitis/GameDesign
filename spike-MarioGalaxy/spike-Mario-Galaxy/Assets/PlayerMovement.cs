@@ -6,6 +6,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public float speed = 1.0f;
+    public float rotationSpeed = 20.0f;
     public float gravity = 9.98f;
     public Transform gravitySource;
     /// <param name="gravityVector">Vector pointing inwards. Negative form means pointing outwards.</param>
@@ -14,7 +15,15 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+    
+    }
+
+    void Update() {
         
+        transform.position += transform.up * Input.GetAxis("Vertical") * speed * Time.deltaTime;
+
+        //Rotate on Z-Axis, Applying a rotation of eulerAngles.z degrees around the z axis
+        transform.Rotate(new Vector3(0.0f, 0.0f, Input.GetAxis("Horizontal") * rotationSpeed) * Time.deltaTime);
     }
 
     // FixedUpdate due to Physics/RigidBody in use
