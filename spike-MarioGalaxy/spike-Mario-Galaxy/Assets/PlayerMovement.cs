@@ -26,14 +26,14 @@ public class PlayerMovement : MonoBehaviour
         transform.Rotate(new Vector3(0.0f, 0.0f, Input.GetAxis("Horizontal") * rotationSpeed) * Time.deltaTime);
     }
 
-    // FixedUpdate due to Physics/RigidBody in use
+    // FixedUpdate due to Physics/RigidBody in use, avoids the jittering you'd get with Update()
     void FixedUpdate()
     {
         // Actual vector between the two positions, normalized to one unit long (to be reused in other code) e.g. multiplied by gravity
         gravityVector = (gravitySource.position - transform.position).normalized * gravity;
 
-        // TODO: Alternative may be to make Z vector look up to handle rotation relative to gravitySource
-        transform.rotation = Quaternion.LookRotation(-gravityVector);
+        // Rotate to given forward direction, and maintain the 'up' direction to handle rotation relative to gravitySource
+        transform.rotation = Quaternion.LookRotation(-gravityVector, transform.up);
 
         transform.position +=  gravityVector*Time.deltaTime;
 
@@ -42,25 +42,25 @@ public class PlayerMovement : MonoBehaviour
 
     }
 
-    // To kick you out of the inner body if you sink inwards...
-    // Pre-requisite: Sphere Collider 'Is Trigger' is set to true
     void OnTriggerEnter(Collider collider) {
 
-        // Cast to gain access to sphere's radius param
-        // SphereCollider sphereCollider = (SphereCollider) collider;
-        // transform.position = gravitySource.position - gravityVector.normalized*sphereCollider.radius;
-        
-        // Set position to as far as the colliding shape's axis radius length (diameter*0.5 for radius) of the vector direction
-        transform.position = gravitySource.position - gravityVector.normalized*collider.transform.localScale.y*0.5f;
+        StayOnSphere(collider);
     }
+ 
 
     void OnTriggerStay(Collider collider) {
 
-        // Cast to gain access to sphere's radius param
-        // SphereCollider sphereCollider = (SphereCollider) collider;
+        StayOnSphere(collider);
+    }
 
+    // To kick you out of the inner body if you sink inwards...
+    // Pre-requisite: Collider 'Is Trigger' property is set to true
+    void StayOnSphere(Collider collider) {
         // Set position to as far as the colliding shape's axis radius length (diameter*0.5 for radius) of the vector direction
         transform.position = gravitySource.position - gravityVector.normalized*collider.transform.localScale.y*0.5f;
+
+        // Alternative way: Cast to gain access to sphere's radius param
+        // SphereCollider sphereCollider = (SphereCollider) collider;
         // transform.position = gravitySource.position - gravityVector.normalized*sphereCollider.radius;
     }
 
