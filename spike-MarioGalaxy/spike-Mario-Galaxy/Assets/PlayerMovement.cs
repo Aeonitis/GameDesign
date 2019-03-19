@@ -2,24 +2,36 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// PlayerMovement assuming spheres
+ #region bugs
+    // - Planet-switching interrupted when holding jump button
+ #endregion
+
+/**
+ * PlayerMovement assuming spheres as gravity sources
+ */
 public class PlayerMovement : MonoBehaviour
 {
+    #region vardefinitions
+    /// <param speed="gravity">Player's movement speed scalar.</param>
     public float speed = 1.0f;
+    /// <param name="rotationSpeed">Player's rotation speed scalar.</param>
     public float rotationSpeed = 20.0f;
+    /// <param name="gravity">Gravity scalar set on player.</param>
     public float gravity = 9.81f;
+    /// <param name="gravitySource">Object which causes gravitational pull.</param>
     public Transform gravitySource;
+    /// <param name="velocity">Player velocity vector applied for passive gravity and active jumps.</param>
     public Vector3 velocity = Vector3.zero;
     /// <param name="gravityVector">Vector pointing inwards. Negative form means pointing outwards.</param>
     private Vector3 gravityVector;
-    /// <param name="gravityVelocity">Player in the air will be accumulating gravity. We want to avoid a linear drop, too boring!</param>
-    // private float gravityVelocity = 0.0f;
+    /// <param name="grounded">Player state boolean when on ground.</param>
     private bool grounded = false;
     public float jumpPower = 10.0f;
     /// <param name="jumpOffset">Move player up before the jump.</param>
     public float jumpOffset = 1.0f;
     /// <param name="gravityRotationRate">Rotation in degrees.</param>
     public float gravityRotationRate = 30.0f;
+    #endregion
 
     // Start is called before the first frame update
     void Start()
@@ -31,7 +43,7 @@ public class PlayerMovement : MonoBehaviour
         
         transform.position += transform.up * Input.GetAxis("Vertical") * speed * Time.deltaTime;
 
-        //Rotate on Z-Axis, Applying a rotation of eulerAngles.z degrees around the z axis
+        // Rotate on Z-Axis, Applying a rotation of eulerAngles.z degrees around the z axis
         transform.Rotate(new Vector3(0.0f, 0.0f, Input.GetAxis("Horizontal") * rotationSpeed) * Time.deltaTime);
 
         if(Input.GetButton("Jump") && grounded) {
@@ -41,29 +53,28 @@ public class PlayerMovement : MonoBehaviour
             Vector3 jumpDirection = (transform.position - gravitySource.position).normalized;
             velocity += jumpDirection*jumpPower;
             // Offsets the character when you hit jump so it's not on the ground
-            transform.position += jumpDirection*jumpOffset;
+            // transform.position += jumpDirection*jumpOffset;
 
         }
     }
 
-    // FixedUpdate due to Physics/RigidBody in use, avoids the jittering you'd get with Update()
+    // FixedUpdate (once per frame) due to Physics/RigidBody in use, avoids the jittering you'd get with Update()
     // Note: Triggers (OnTriggerEnter, OnTriggerStay, etc...) only occur during FixedUpdate
     void FixedUpdate()
     {
-        // Actual vector between the two positions, normalized to one unit long (to be reused in other code) e.g. multiplied by gravity
-        // gravityVector = (gravitySource.position - transform.position).normalized * (gravity + gravityVelocity) * Time.deltaTime;
-        
-        // A 1.0 normalized Direction, multiply by gravity n so we get actual vectordown then multiply delta time to be time-based
+        /** 
+            Amount of gravity to apply FOR THE deltaTIME BEING ;)
+            A 1.0 normalized Vector/Direction, multiply by gravity scalar 'n' so we get the actual/relative Vector.down
+        */
         gravityVector = (gravitySource.position - transform.position).normalized*gravity*Time.deltaTime;
 
+        // Velocity is needed, incrementing gravity
         velocity += gravityVector;
-        // gravityVelocity += (gravity + gravityVelocity) * Time.deltaTime;
 
         // Rotate to given quaternion, maintaining the 'up' direction to handle rotation relative to this transform's current rotation
         transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(-gravityVector, transform.up), gravityRotationRate*Time.deltaTime);
         // Move to gravity, applying velocity to player
         transform.position +=  velocity*Time.deltaTime;
-        // transform.position +=  gravityVector*Time.deltaTime;
 
         // TODO: Constraints on rotation, set them programatically
         // GetComponent<Rigidbody>().AddForce(gravityVector);
