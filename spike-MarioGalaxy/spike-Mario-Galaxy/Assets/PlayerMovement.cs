@@ -18,6 +18,8 @@ public class PlayerMovement : MonoBehaviour
     public float jumpPower = 10.0f;
     /// <param name="jumpOffset">Move player up before the jump.</param>
     public float jumpOffset = 1.0f;
+    /// <param name="gravityRotationRate">Rotation in degrees.</param>
+    public float gravityRotationRate = 30.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -38,11 +40,9 @@ public class PlayerMovement : MonoBehaviour
             //Jump logic
             Vector3 jumpDirection = (transform.position - gravitySource.position).normalized;
             velocity += jumpDirection*jumpPower;
+            // Offsets the character when you hit jump so it's not on the ground
             transform.position += jumpDirection*jumpOffset;
 
-            //Failed experiment :(
-            // gravityVelocity = -jumpPower;
-            // transform.position += -gravityVector.normalized;
         }
     }
 
@@ -59,8 +59,8 @@ public class PlayerMovement : MonoBehaviour
         velocity += gravityVector;
         // gravityVelocity += (gravity + gravityVelocity) * Time.deltaTime;
 
-        // Rotate to given forward direction, and maintain the 'up' direction to handle rotation relative to gravitySource
-        transform.rotation = Quaternion.LookRotation(-gravityVector, transform.up);
+        // Rotate to given quaternion, maintaining the 'up' direction to handle rotation relative to this transform's current rotation
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(-gravityVector, transform.up), gravityRotationRate*Time.deltaTime);
         // Move to gravity, applying velocity to player
         transform.position +=  velocity*Time.deltaTime;
         // transform.position +=  gravityVector*Time.deltaTime;
@@ -72,13 +72,22 @@ public class PlayerMovement : MonoBehaviour
 
     void OnTriggerEnter(Collider collider) {
 
-        StayOnSphere(collider);
+        if(collider.tag == "Planetoid") {
+            StayOnSphere(collider);
+        }
+
+        // Set gravitysource as the collider transform of 'GravitationalField' tagged object
+        if(collider.tag == "GravitationalField") {
+            gravitySource = collider.transform;    
+        }
     }
  
 
     void OnTriggerStay(Collider collider) {
 
-        StayOnSphere(collider);
+        if(collider.tag == "Planetoid") {
+            StayOnSphere(collider);
+        }
     }
 
     // To kick you out of the inner body if you sink inwards...
