@@ -6,6 +6,9 @@ public class CameraAI : MonoBehaviour
 {
 
     public string tag = "Player";
+
+    public float cameraSpeed = 1.0f;
+    public float cameraRotationSpeed = 30.0f;
     private Vector3 cameraOffset;
 
     // Start is called before the first frame update
@@ -21,6 +24,8 @@ public class CameraAI : MonoBehaviour
     void Update()
     {
         Transform player = GameObject.FindGameObjectWithTag(tag).transform;
+        Vector3 goalPosition;
+        Quaternion goalRotation;
         
         // transform.position = player.position + cameraOffset;
         // Current player 'up' direction is arranged the opposite 'wrong' way, due to Z-axis being up instead of Y-axis >_<

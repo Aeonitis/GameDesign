@@ -31,6 +31,13 @@ public class PlayerMovement : MonoBehaviour
     public float jumpOffset = 1.0f;
     /// <param name="gravityRotationRate">Rotation in degrees.</param>
     public float gravityRotationRate = 30.0f;
+
+    public float cameraShakeMagnitude = 0.4f;
+    public float cameraShakeDuration = 0.05f;
+    private bool justJumped = false;
+    private bool shakeCamera = false;
+    // private Vector3 cameraInitialPosition;
+    // private Vector3 cameraShakeOffset;
     #endregion
 
     // Start is called before the first frame update
@@ -39,8 +46,16 @@ public class PlayerMovement : MonoBehaviour
     
     }
 
+    void LateUpdate() {
+        // CameraShake logic
+        if(shakeCamera) {
+            Camera.main.transform.position += Random.insideUnitSphere*cameraShakeMagnitude;
+        }
+    }
+
     void Update() {
-        
+        justJumped = false;
+
         transform.position += transform.up * Input.GetAxis("Vertical") * speed * Time.deltaTime;
 
         // Rotate on Z-Axis, Applying a rotation of eulerAngles.z degrees around the z axis
@@ -56,6 +71,10 @@ public class PlayerMovement : MonoBehaviour
             // transform.position += jumpDirection*jumpOffset;
 
         }
+    }
+
+    void StopCameraShake() {
+        shakeCamera = false;
     }
 
     // FixedUpdate (once per frame) due to Physics/RigidBody in use, avoids the jittering you'd get with Update()
@@ -84,6 +103,9 @@ public class PlayerMovement : MonoBehaviour
     void OnTriggerEnter(Collider collider) {
 
         if(collider.tag == "Planetoid") {
+            shakeCamera = true;
+            Invoke("StopCameraShake", cameraShakeDuration);
+
             StayOnSphere(collider);
         }
 
