@@ -71,16 +71,7 @@ public class PlayerMovement : MonoBehaviour
             // transform.position += jumpDirection*jumpOffset;
 
         }
-    }
 
-    void StopCameraShake() {
-        shakeCamera = false;
-    }
-
-    // FixedUpdate (once per frame) due to Physics/RigidBody in use, avoids the jittering you'd get with Update()
-    // Note: Triggers (OnTriggerEnter, OnTriggerStay, etc...) only occur during FixedUpdate
-    void FixedUpdate()
-    {
         /** 
             Amount of gravity to apply FOR THE deltaTIME BEING ;)
             A 1.0 normalized Vector/Direction, multiply by gravity scalar 'n' so we get the actual/relative Vector.down
@@ -94,9 +85,15 @@ public class PlayerMovement : MonoBehaviour
         transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(-gravityVector, transform.up), gravityRotationRate*Time.deltaTime);
         // Move to gravity, applying velocity to player
         transform.position +=  velocity*Time.deltaTime;
+    }
 
-        // TODO: Constraints on rotation, set them programatically
-        // GetComponent<Rigidbody>().AddForce(gravityVector);
+    void StopCameraShake() {
+        shakeCamera = false;
+    }
+
+    // FixedUpdate (once per frame) due to Physics/RigidBody in use, avoids the jittering you'd get with Update()
+    // Note: Triggers (OnTriggerEnter, OnTriggerStay, etc...) only occur during FixedUpdate
+    void FixedUpdate() {
 
     }
 
